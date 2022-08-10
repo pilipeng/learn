@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-app-go
+  template:
+    metadata:
+      labels:
+        app: go-app-go
+    spec:
+      containers:
+        - name: go-go-app-container
+          image: demoapp:v1
+          resources:
+            limits:
+              memory: "50Mi"
+              cpu: "50m"
+          ports:
+            - containerPort: 8080
