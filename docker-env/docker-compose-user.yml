@@ -1,0 +1,89 @@
+version: '3'
+
+######## 启动本项目之前，要先启动本项目依赖的环境docker-compose-env.yml #######
+services:
+
+  #认证服务、颁发token
+  identity-rpc:
+    #image: cosmtrek/air:latest
+    image: cosmtrek/air:v1.27.8
+    container_name: identity-rpc
+    environment:
+      # 时区上海
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+    working_dir: /go/src/github.com/looklook/app/identity/cmd/rpc
+    volumes:
+      -  .:/go/src/github.com/looklook
+    privileged: true
+    restart: always
+    networks:
+      - looklook_net
+
+  #认证服务api
+  identity-api:
+    #image: cosmtrek/air:latest
+    image: cosmtrek/air:v1.27.8
+    container_name: identity-api
+    environment:
+      # 时区上海
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+    working_dir: /go/src/github.com/looklook/app/identity/cmd/api
+    volumes:
+      -  .:/go/src/github.com/looklook
+    privileged: true
+    restart: always
+    networks:
+      - looklook_net
+    depends_on:
+      - identity-rpc
+
+  #用户服务grpc
+  usercenter-rpc:
+    #image: cosmtrek/air:latest
+    image: cosmtrek/air:v1.27.8
+    container_name: usercenter-rpc
+    environment:
+      # 时区上海
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+    working_dir: /go/src/github.com/looklook/app/usercenter/cmd/rpc
+    volumes:
+      -  .:/go/src/github.com/looklook
+    privileged: true
+    restart: always
+    networks:
+      - looklook_net
+    depends_on:
+      - identity-rpc
+
+  #用户服务api
+  usercenter-api:
+    #image: cosmtrek/air:latest
+    image: cosmtrek/air:v1.27.8
+    container_name: usercenter-api
+    environment:
+      # 时区上海
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+    working_dir: /go/src/github.com/looklook/app/usercenter/cmd/api
+    volumes:
+      -  .:/go/src/github.com/looklook
+    privileged: true
+    restart: always
+    networks:
+      - looklook_net
+    depends_on:
+      - usercenter-rpc
+      - identity-rpc
+
+
+
+networks:
+  looklook_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
